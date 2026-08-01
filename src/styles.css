@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/* Semantic tokens — values swapped by html.light / html.dark */
+@theme {
+  --font-sans: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-border-glow: var(--border-glow);
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-accent-fg: var(--accent-fg);
+}
+
+/* Dark defaults (also applied via bootstrap before paint) */
+:root,
+html.dark {
+  --bg: #05060a;
+  --surface: #0c1018;
+  --surface-elevated: #121822;
+  --fg: #f4f7fb;
+  --muted: #9aa8b8;
+  --subtle: #6b7a8c;
+  --border: #1c2533;
+  --border-glow: #1a3a55;
+  --accent: #2bb8ff;
+  --accent-bright: #5ecfff;
+  --accent-dim: #0a4a70;
+  --accent-fg: #041018;
+  --glow: oklab(74.3057% -0.0821948 -0.127775 / 0.22);
+  --grid-opacity: 0.035;
+  --logo-shadow: oklab(74.3057% -0.0821948 -0.127775 / 0.35);
+}
+
+html.light {
+  --bg: #f4f7fb;
+  --surface: #fff;
+  --surface-elevated: #eef3f8;
+  --fg: #0b1220;
+  --muted: #4b5c70;
+  --subtle: #6b7c90;
+  --border: #d5dee8;
+  --border-glow: #b8d4ea;
+  --accent: #0284c7;
+  --accent-bright: #0369a1;
+  --accent-dim: #bae6fd;
+  --accent-fg: #fff;
+  --glow: oklab(58.7617% -0.0652674 -0.122575 / 0.16);
+  --grid-opacity: 0.045;
+  --logo-shadow: oklab(58.7617% -0.0652674 -0.122575 / 0.22);
+}
+
+/* One QR visible: light/dark variants (class names match homepage) */
+.qr-theme {
+  width: 160px;
+  height: 160px;
+  display: none;
+}
+
+@media (width >= 640px) {
+  .qr-theme {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+.qr-theme-dark {
+  display: block;
+}
+
+.qr-theme-light {
+  display: none;
+}
+
+html.light .qr-theme-dark {
+  display: none;
+}
+
+html.light .qr-theme-light {
+  display: block;
+}
+
+html.dark .qr-theme-dark {
+  display: block;
+}
+
+html.dark .qr-theme-light {
+  display: none;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+    transition:
+      background-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      color 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  to {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes fade-up {
+    0% {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes soft-pulse {
+    0%,
+    to {
+      opacity: 0.55;
+    }
+  }
+}
+
+.animate-fade-up {
+  animation: 0.52s cubic-bezier(0.22, 1, 0.36, 1) both fade-up;
+}
+.animate-fade-up-1 {
+  animation: 0.52s cubic-bezier(0.22, 1, 0.36, 1) 60ms both fade-up;
+}
+.animate-fade-up-2 {
+  animation: 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both fade-up;
+}
+.animate-fade-up-3 {
+  animation: 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both fade-up;
+}
+.animate-fade-up-4 {
+  animation: 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both fade-up;
+}
+
+.glow-orb {
+  background: radial-gradient(ellipse at center, var(--glow), transparent 68%);
+  animation: 6s ease-in-out infinite soft-pulse;
+}
+
+.theme-grid {
+  opacity: var(--grid-opacity);
+}

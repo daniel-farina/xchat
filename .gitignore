@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+
+# Local env / secrets (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+service-account*.json
+
+# Platform / workspace local state
+.project_id
+.github_repo
+.node_modules.lock
+
+# Build & deploy artifacts (can embed secrets / huge)
+.vercel/
+.output/
+dist/
+build/
+coverage/
+.turbo/
+.nitro/
+.cache/
+*.tsbuildinfo
+
+# TanStack / Vite temp
+.tanstack/
+.vite/
+
+# Runtime / local DB
+*.db
+*.sqlite
+*.sqlite3
+pglite.data
+**/pglite.data
+.pglite/
+
+# Logs & OS noise
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Agent QA / user uploads (not product source)
+screenshots/
+attachments/
+
+# Local OAuth preview credentials (never commit)
+src/lib/auth/preview.local.json
+preview.local.json
