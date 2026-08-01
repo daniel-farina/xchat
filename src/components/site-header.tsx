@@ -5,8 +5,9 @@ import { UserButton } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 const COMING_SOON = "Coming Soon";
-const TEASER_MS = 10_000;
-const TYPE_MS = 55;
+const AUGMENT = "Augment";
+const HOLD_MS = 2_200;
+const TYPE_MS = 48;
 
 export function SiteHeader({
   active,
@@ -85,8 +86,9 @@ export function SiteHeader({
 }
 
 function AugmentTeaserNav() {
-  const [typed, setTyped] = useState("");
+  const [label, setLabel] = useState(AUGMENT);
   const [playing, setPlaying] = useState(false);
+  const [orange, setOrange] = useState(false);
   const [cursorOn, setCursorOn] = useState(false);
   const timers = useRef<number[]>([]);
 
@@ -95,56 +97,80 @@ function AugmentTeaserNav() {
     timers.current = [];
   }, []);
 
-  const reset = useCallback(() => {
-    clearTimers();
-    setTyped("");
-    setPlaying(false);
-    setCursorOn(false);
-  }, [clearTimers]);
+  const schedule = useCallback((fn: () => void, ms: number) => {
+    const id = window.setTimeout(fn, ms);
+    timers.current.push(id);
+  }, []);
 
   const play = useCallback(() => {
     if (playing) return;
     clearTimers();
     setPlaying(true);
+    setOrange(true);
     setCursorOn(true);
-    setTyped("");
+    setLabel("");
 
+    let t = 0;
+    // Type "Coming Soon"
     for (let i = 1; i <= COMING_SOON.length; i++) {
-      const id = window.setTimeout(() => {
-        setTyped(COMING_SOON.slice(0, i));
-      }, i * TYPE_MS);
-      timers.current.push(id);
+      t += TYPE_MS;
+      const n = i;
+      schedule(() => setLabel(COMING_SOON.slice(0, n)), t);
     }
-
-    const typedDone = COMING_SOON.length * TYPE_MS + 200;
-    timers.current.push(window.setTimeout(() => setCursorOn(false), typedDone));
-    timers.current.push(window.setTimeout(reset, TEASER_MS));
-  }, [playing, clearTimers, reset]);
+    // Hold
+    t += HOLD_MS;
+    // Delete "Coming Soon"
+    for (let i = COMING_SOON.length - 1; i >= 0; i--) {
+      t += TYPE_MS;
+      const n = i;
+      schedule(() => setLabel(COMING_SOON.slice(0, n)), t);
+    }
+    // Type "Augment" back
+    for (let i = 1; i <= AUGMENT.length; i++) {
+      t += TYPE_MS;
+      const n = i;
+      schedule(() => {
+        setOrange(false);
+        setLabel(AUGMENT.slice(0, n));
+      }, t);
+    }
+    // Done — look totally normal
+    t += TYPE_MS;
+    schedule(() => {
+      setLabel(AUGMENT);
+      setOrange(false);
+      setCursorOn(false);
+      setPlaying(false);
+      clearTimers();
+    }, t);
+  }, [playing, clearTimers, schedule]);
 
   useEffect(() => () => clearTimers(), [clearTimers]);
 
   return (
     <button
       type="button"
-      aria-label={playing ? "Coming soon" : "Augment, coming soon"}
+      aria-label={orange ? "Coming soon" : "Augment, coming soon"}
       onClick={play}
       onMouseEnter={play}
       className="whitespace-nowrap rounded-lg px-2 py-1.5 text-sm text-muted transition-colors hover:bg-surface hover:text-fg sm:px-2.5"
     >
-      {playing ? (
-        <span className="inline-flex items-center font-medium text-orange-500">
-          {typed}
-          {cursorOn ? (
-            <span
-              className="ml-px inline-block w-[0.45ch] animate-pulse bg-orange-500 align-[-0.1em]"
-              style={{ height: "0.95em" }}
-              aria-hidden
-            />
-          ) : null}
-        </span>
-      ) : (
-        "Augment"
-      )}
+      <span
+        className={`inline-flex min-h-[1.25em] items-center ${
+          orange ? "font-medium text-orange-500" : ""
+        }`}
+      >
+        {label}
+        {cursorOn ? (
+          <span
+            className={`ml-px inline-block w-[0.45ch] animate-pulse align-[-0.1em] ${
+              orange ? "bg-orange-500" : "bg-muted"
+            }`}
+            style={{ height: "0.95em" }}
+            aria-hidden
+          />
+        ) : null}
+      </span>
     </button>
   );
 }
