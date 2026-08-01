@@ -49,22 +49,19 @@ export function SiteHeader({
               aria-pressed={augmentSoon}
               onClick={() => setAugmentSoon((open) => !open)}
               onBlur={() => setAugmentSoon(false)}
-              className="group relative overflow-hidden whitespace-nowrap rounded-lg px-2 py-1.5 text-sm text-muted transition-colors hover:bg-surface hover:text-fg sm:px-2.5"
+              className="group relative whitespace-nowrap rounded-lg px-2 py-1.5 text-sm text-muted transition-colors hover:bg-surface hover:text-fg sm:px-2.5"
             >
-              <span className="invisible font-medium" aria-hidden>
-                Coming Soon
-              </span>
               <span
-                className={`absolute inset-0 flex items-center justify-center transition-opacity ${
+                className={`transition-opacity ${
                   augmentSoon
                     ? "opacity-0"
                     : "opacity-100 group-hover:opacity-0 group-focus-visible:opacity-0"
                 }`}
               >
-                (Augment)
+                Augment
               </span>
               <span
-                className={`absolute inset-0 flex items-center justify-center font-medium text-orange-500 transition-opacity ${
+                className={`pointer-events-none absolute inset-0 flex items-center justify-center whitespace-nowrap text-xs font-medium text-orange-500 transition-opacity ${
                   augmentSoon
                     ? "opacity-100"
                     : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
