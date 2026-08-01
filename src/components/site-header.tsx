@@ -46,6 +46,7 @@ export function SiteHeader({
               active={active === "submit"}
             />
             <NavLink to="/buzz" label="Buzz" active={active === "buzz"} />
+            {/* Always in the header — not gated on auth (signed-in or signed-out). */}
             <AugmentTeaserNav />
             {user ? (
               <NavLink
