@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import { UserButton } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
+
+const COMING_SOON = "Coming Soon";
+const TEASER_MS = 10_000;
+const TYPE_MS = 55;
 
 export function SiteHeader({
   active,
@@ -17,7 +21,6 @@ export function SiteHeader({
     | "buzz";
 }) {
   const { user, isPending } = useCurrentUserState();
-  const [augmentSoon, setAugmentSoon] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/80 bg-bg/80 backdrop-blur-md">
@@ -42,34 +45,7 @@ export function SiteHeader({
               active={active === "submit"}
             />
             <NavLink to="/buzz" label="Buzz" active={active === "buzz"} />
-            {/* Teaser — no route; hover/tap shows Coming Soon */}
-            <button
-              type="button"
-              aria-label="Augment, coming soon"
-              aria-pressed={augmentSoon}
-              onClick={() => setAugmentSoon((open) => !open)}
-              onBlur={() => setAugmentSoon(false)}
-              className="group relative whitespace-nowrap rounded-lg px-2 py-1.5 text-sm text-muted transition-colors hover:bg-surface hover:text-fg sm:px-2.5"
-            >
-              <span
-                className={`transition-opacity ${
-                  augmentSoon
-                    ? "opacity-0"
-                    : "opacity-100 group-hover:opacity-0 group-focus-visible:opacity-0"
-                }`}
-              >
-                Augment
-              </span>
-              <span
-                className={`pointer-events-none absolute inset-0 flex items-center justify-center whitespace-nowrap text-xs font-medium text-orange-500 transition-opacity ${
-                  augmentSoon
-                    ? "opacity-100"
-                    : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
-                }`}
-              >
-                Coming Soon
-              </span>
-            </button>
+            <AugmentTeaserNav />
             {user ? (
               <NavLink
                 to="/showcase/mine"
@@ -105,6 +81,71 @@ export function SiteHeader({
         </div>
       </div>
     </header>
+  );
+}
+
+function AugmentTeaserNav() {
+  const [typed, setTyped] = useState("");
+  const [playing, setPlaying] = useState(false);
+  const [cursorOn, setCursorOn] = useState(false);
+  const timers = useRef<number[]>([]);
+
+  const clearTimers = useCallback(() => {
+    for (const id of timers.current) window.clearTimeout(id);
+    timers.current = [];
+  }, []);
+
+  const reset = useCallback(() => {
+    clearTimers();
+    setTyped("");
+    setPlaying(false);
+    setCursorOn(false);
+  }, [clearTimers]);
+
+  const play = useCallback(() => {
+    if (playing) return;
+    clearTimers();
+    setPlaying(true);
+    setCursorOn(true);
+    setTyped("");
+
+    for (let i = 1; i <= COMING_SOON.length; i++) {
+      const id = window.setTimeout(() => {
+        setTyped(COMING_SOON.slice(0, i));
+      }, i * TYPE_MS);
+      timers.current.push(id);
+    }
+
+    const typedDone = COMING_SOON.length * TYPE_MS + 200;
+    timers.current.push(window.setTimeout(() => setCursorOn(false), typedDone));
+    timers.current.push(window.setTimeout(reset, TEASER_MS));
+  }, [playing, clearTimers, reset]);
+
+  useEffect(() => () => clearTimers(), [clearTimers]);
+
+  return (
+    <button
+      type="button"
+      aria-label={playing ? "Coming soon" : "Augment, coming soon"}
+      onClick={play}
+      onMouseEnter={play}
+      className="whitespace-nowrap rounded-lg px-2 py-1.5 text-sm text-muted transition-colors hover:bg-surface hover:text-fg sm:px-2.5"
+    >
+      {playing ? (
+        <span className="inline-flex items-center font-medium text-orange-500">
+          {typed}
+          {cursorOn ? (
+            <span
+              className="ml-px inline-block w-[0.45ch] animate-pulse bg-orange-500 align-[-0.1em]"
+              style={{ height: "0.95em" }}
+              aria-hidden
+            />
+          ) : null}
+        </span>
+      ) : (
+        "Augment"
+      )}
+    </button>
   );
 }
 
