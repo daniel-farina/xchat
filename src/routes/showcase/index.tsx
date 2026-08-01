@@ -46,7 +46,7 @@ function ShowcasePage() {
   const [error, setError] = useState<string | null>(null);
   const [sort, setSort] = useState<SortKey>("rating");
   const [category, setCategory] = useState<ShowcaseCategoryId | "all">("all");
-  const [augmentSoon, setAugmentSoon] = useState(false);
+  const [xwealthSoon, setXwealthSoon] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -208,10 +208,10 @@ function ShowcasePage() {
           {/* Teaser chip — no filter / no navigation */}
           <button
             type="button"
-            aria-label="augment, coming soon"
-            aria-pressed={augmentSoon}
-            onClick={() => setAugmentSoon((open) => !open)}
-            onBlur={() => setAugmentSoon(false)}
+            aria-label="xwealth, coming soon"
+            aria-pressed={xwealthSoon}
+            onClick={() => setXwealthSoon((open) => !open)}
+            onBlur={() => setXwealthSoon(false)}
             className="group relative overflow-hidden rounded-full border border-border bg-bg px-2.5 py-1 text-xs font-medium"
           >
             <span className="invisible font-semibold" aria-hidden>
@@ -219,16 +219,16 @@ function ShowcasePage() {
             </span>
             <span
               className={`absolute inset-0 flex items-center justify-center text-muted transition-opacity ${
-                augmentSoon
+                xwealthSoon
                   ? "opacity-0"
                   : "opacity-100 group-hover:opacity-0 group-focus-visible:opacity-0"
               }`}
             >
-              augment
+              xwealth
             </span>
             <span
               className={`absolute inset-0 flex items-center justify-center font-semibold text-orange-500 transition-opacity ${
-                augmentSoon
+                xwealthSoon
                   ? "opacity-100"
                   : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
               }`}
