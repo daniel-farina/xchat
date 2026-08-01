@@ -46,7 +46,6 @@ function ShowcasePage() {
   const [error, setError] = useState<string | null>(null);
   const [sort, setSort] = useState<SortKey>("rating");
   const [category, setCategory] = useState<ShowcaseCategoryId | "all">("all");
-  const [xwealthSoon, setXwealthSoon] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -205,37 +204,6 @@ function ShowcasePage() {
               </button>
             );
           })}
-          {/* Teaser chip — no filter / no navigation */}
-          <button
-            type="button"
-            aria-label="xwealth, coming soon"
-            aria-pressed={xwealthSoon}
-            onClick={() => setXwealthSoon((open) => !open)}
-            onBlur={() => setXwealthSoon(false)}
-            className="group relative overflow-hidden rounded-full border border-border bg-bg px-2.5 py-1 text-xs font-medium"
-          >
-            <span className="invisible font-semibold" aria-hidden>
-              Coming Soon
-            </span>
-            <span
-              className={`absolute inset-0 flex items-center justify-center text-muted transition-opacity ${
-                xwealthSoon
-                  ? "opacity-0"
-                  : "opacity-100 group-hover:opacity-0 group-focus-visible:opacity-0"
-              }`}
-            >
-              xwealth
-            </span>
-            <span
-              className={`absolute inset-0 flex items-center justify-center font-semibold text-orange-500 transition-opacity ${
-                xwealthSoon
-                  ? "opacity-100"
-                  : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
-              }`}
-            >
-              Coming Soon
-            </span>
-          </button>
         </div>
 
         {error ? (

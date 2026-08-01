@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import { UserButton } from "@/lib/auth/gates";
@@ -16,6 +17,7 @@ export function SiteHeader({
     | "buzz";
 }) {
   const { user, isPending } = useCurrentUserState();
+  const [augmentSoon, setAugmentSoon] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/80 bg-bg/80 backdrop-blur-md">
@@ -40,6 +42,37 @@ export function SiteHeader({
               active={active === "submit"}
             />
             <NavLink to="/buzz" label="Buzz" active={active === "buzz"} />
+            {/* Teaser — no route; hover/tap shows Coming Soon */}
+            <button
+              type="button"
+              aria-label="Augment, coming soon"
+              aria-pressed={augmentSoon}
+              onClick={() => setAugmentSoon((open) => !open)}
+              onBlur={() => setAugmentSoon(false)}
+              className="group relative overflow-hidden whitespace-nowrap rounded-lg px-2 py-1.5 text-sm text-muted transition-colors hover:bg-surface hover:text-fg sm:px-2.5"
+            >
+              <span className="invisible font-medium" aria-hidden>
+                Coming Soon
+              </span>
+              <span
+                className={`absolute inset-0 flex items-center justify-center transition-opacity ${
+                  augmentSoon
+                    ? "opacity-0"
+                    : "opacity-100 group-hover:opacity-0 group-focus-visible:opacity-0"
+                }`}
+              >
+                (Augment)
+              </span>
+              <span
+                className={`absolute inset-0 flex items-center justify-center font-medium text-orange-500 transition-opacity ${
+                  augmentSoon
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
+                }`}
+              >
+                Coming Soon
+              </span>
+            </button>
             {user ? (
               <NavLink
                 to="/showcase/mine"
