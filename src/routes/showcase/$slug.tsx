@@ -267,14 +267,13 @@ function AppDetailPage() {
                 </h1>
                 <p className="mt-1 text-sm text-muted">
                   by {item.authorName}{" "}
-                  <a
-                    href={`https://x.com/${item.authorHandle}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    to="/showcase/builder/$handle"
+                    params={{ handle: item.authorHandle }}
                     className="text-accent-bright hover:underline"
                   >
                     @{item.authorHandle}
-                  </a>
+                  </Link>
                 </p>
                 <p className="mt-1 font-mono text-[11px] text-subtle">
                   /showcase/{item.slug}

@@ -18,6 +18,7 @@ import { Route as ShowcaseAdminRouteImport } from './routes/showcase/admin'
 import { Route as ShowcaseMineRouteImport } from './routes/showcase/mine'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ShowcaseBuilderHandleRouteImport } from './routes/showcase/builder.$handle'
 import { Route as ShowcaseEditItemIdRouteImport } from './routes/showcase/edit.$itemId'
 import { Route as ApiShowcaseOgSlugRouteImport } from './routes/api/showcase/og/$slug'
 
@@ -66,6 +67,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShowcaseBuilderHandleRoute = ShowcaseBuilderHandleRouteImport.update({
+  id: '/showcase/builder/$handle',
+  path: '/showcase/builder/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShowcaseEditItemIdRoute = ShowcaseEditItemIdRouteImport.update({
   id: '/showcase/edit/$itemId',
   path: '/showcase/edit/$itemId',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/showcase/': typeof ShowcaseIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/showcase/builder/$handle': typeof ShowcaseBuilderHandleRoute
   '/showcase/edit/$itemId': typeof ShowcaseEditItemIdRoute
   '/api/showcase/og/$slug': typeof ApiShowcaseOgSlugRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/showcase': typeof ShowcaseIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/showcase/builder/$handle': typeof ShowcaseBuilderHandleRoute
   '/showcase/edit/$itemId': typeof ShowcaseEditItemIdRoute
   '/api/showcase/og/$slug': typeof ApiShowcaseOgSlugRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/showcase/': typeof ShowcaseIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/showcase/builder/$handle': typeof ShowcaseBuilderHandleRoute
   '/showcase/edit/$itemId': typeof ShowcaseEditItemIdRoute
   '/api/showcase/og/$slug': typeof ApiShowcaseOgSlugRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/showcase/submit'
     | '/showcase/'
     | '/api/auth/$'
+    | '/showcase/builder/$handle'
     | '/showcase/edit/$itemId'
     | '/api/showcase/og/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/showcase/submit'
     | '/showcase'
     | '/api/auth/$'
+    | '/showcase/builder/$handle'
     | '/showcase/edit/$itemId'
     | '/api/showcase/og/$slug'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/showcase/submit'
     | '/showcase/'
     | '/api/auth/$'
+    | '/showcase/builder/$handle'
     | '/showcase/edit/$itemId'
     | '/api/showcase/og/$slug'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ShowcaseBuilderHandleRoute: typeof ShowcaseBuilderHandleRoute
   ShowcaseEditItemIdRoute: typeof ShowcaseEditItemIdRoute
   ApiShowcaseOgSlugRoute: typeof ApiShowcaseOgSlugRoute
 }
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/showcase/builder/$handle': {
+      id: '/showcase/builder/$handle'
+      path: '/showcase/builder/$handle'
+      fullPath: '/showcase/builder/$handle'
+      preLoaderRoute: typeof ShowcaseBuilderHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/showcase/edit/$itemId': {
       id: '/showcase/edit/$itemId'
       path: '/showcase/edit/$itemId'
@@ -265,18 +285,10 @@ const rootRouteChildren: RootRouteChildren = {
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ShowcaseBuilderHandleRoute: ShowcaseBuilderHandleRoute,
   ShowcaseEditItemIdRoute: ShowcaseEditItemIdRoute,
   ApiShowcaseOgSlugRoute: ApiShowcaseOgSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

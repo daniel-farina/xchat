@@ -413,6 +413,35 @@ export const listApprovedShowcase = createServerFn({ method: "GET" }).handler(
   },
 );
 
+/** Public builder presence — approved showcase items for an X handle. */
+export const listApprovedShowcaseByHandle = createServerFn({ method: "POST" })
+  .validator((input: { handle: string }) => {
+    const handle = normalizeHandle(String(input?.handle ?? ""));
+    if (!/^[a-z0-9_]{1,15}$/.test(handle)) {
+      throw new Error("Invalid builder handle.");
+    }
+    return { handle };
+  })
+  .handler(async ({ data }) => {
+    try {
+      const sql = await getSql();
+      const rows = await sql<ShowcaseRow>`
+        select i.*,
+          (select avg(stars)::float from showcase_ratings r where r.item_id = i.id) as avg_stars,
+          (select count(*)::int from showcase_ratings r where r.item_id = i.id) as rating_count,
+          (select count(*)::int from showcase_reviews v where v.item_id = i.id) as review_count
+        from showcase_items i
+        where i.status = 'approved'
+          and lower(i.author_handle) = ${data.handle}
+        order by i.created_at desc
+      `;
+      return rows.map(rowToItem);
+    } catch (err) {
+      console.error("[showcase] listApprovedByHandle failed:", err);
+      throw friendlyDbError(err);
+    }
+  });
+
 export const listMyShowcase = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {

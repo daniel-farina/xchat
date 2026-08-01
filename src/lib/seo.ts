@@ -37,7 +37,7 @@ type ShareMetaInput = {
   imageType?: string;
   imageWidth?: number;
   imageHeight?: number;
-  type?: "website" | "article";
+  type?: "website" | "article" | "profile";
 };
 
 export function buildShareMeta({
@@ -168,4 +168,50 @@ export function buildAppShareMeta(opts: {
 export function xShareUrl(text: string, url: string): string {
   const params = new URLSearchParams({ text, url });
   return `https://x.com/intent/tweet?${params.toString()}`;
+}
+
+/** Public path for a builder's showcase presence page. */
+export function builderPresencePath(handle: string): string {
+  const clean = String(handle ?? "")
+    .trim()
+    .replace(/^@+/, "")
+    .toLowerCase();
+  return `/showcase/builder/${clean}`;
+}
+
+/**
+ * Ready-to-paste announce for X Chat / Buzz / agents.
+ * Presence only — no payment or settle claims.
+ */
+export function builderAnnounceText(opts: {
+  handle: string;
+  appName?: string;
+  builderUrl: string;
+  appUrl?: string;
+}): string {
+  const handle = opts.handle.replace(/^@+/, "");
+  if (opts.appName && opts.appUrl) {
+    return `Built ${opts.appName} — see it on X Vibe Chat Showcase: ${opts.appUrl} · more from @${handle}: ${opts.builderUrl}`;
+  }
+  return `Builder presence for @${handle} on X Vibe Chat Showcase: ${opts.builderUrl}`;
+}
+
+export function buildBuilderShareMeta(opts: {
+  origin?: string | null;
+  handle: string;
+  displayName?: string | null;
+  buildCount: number;
+  path: string;
+}) {
+  const handle = opts.handle.replace(/^@+/, "");
+  const name = (opts.displayName ?? "").trim() || handle;
+  const count =
+    opts.buildCount === 1 ? "1 approved build" : `${opts.buildCount} approved builds`;
+  return buildShareMeta({
+    origin: opts.origin,
+    title: `@${handle} — Builder on X Vibe Chat`,
+    description: `${name}'s showcase presence · ${count}. See what they built in the Vibe community.`,
+    path: opts.path,
+    type: "profile",
+  });
 }

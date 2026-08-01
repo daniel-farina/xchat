@@ -273,9 +273,9 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
         <Link
           to="/showcase/$slug"
           params={{ slug: item.slug || item.id }}
-          className="flex min-h-0 flex-1 flex-col"
+          className="block overflow-hidden bg-bg"
         >
-          <div className="relative aspect-[4/3] overflow-hidden bg-bg">
+          <div className="relative aspect-[4/3]">
             <img
               src={item.imageData}
               alt={item.appName}
@@ -309,20 +309,36 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
               </span>
             </div>
           </div>
-          <div className="flex flex-1 flex-col p-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-base font-semibold tracking-tight text-fg">
-                {item.appName}
-              </p>
-              <span className="rounded-full border border-border bg-bg px-2 py-0.5 text-[10px] font-medium text-muted">
-                {categoryLabel(item.category)}
-              </span>
-            </div>
-            <p className="mt-0.5 text-xs text-muted">
-              {item.authorName}
-              <span className="ml-1 text-subtle">@{item.authorHandle}</span>
-            </p>
-            <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">
+        </Link>
+        <div className="flex flex-1 flex-col p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to="/showcase/$slug"
+              params={{ slug: item.slug || item.id }}
+              className="text-base font-semibold tracking-tight text-fg hover:underline"
+            >
+              {item.appName}
+            </Link>
+            <span className="rounded-full border border-border bg-bg px-2 py-0.5 text-[10px] font-medium text-muted">
+              {categoryLabel(item.category)}
+            </span>
+          </div>
+          <p className="mt-0.5 text-xs text-muted">
+            {item.authorName}
+            <Link
+              to="/showcase/builder/$handle"
+              params={{ handle: item.authorHandle }}
+              className="ml-1 text-subtle hover:text-accent-bright hover:underline"
+            >
+              @{item.authorHandle}
+            </Link>
+          </p>
+          <Link
+            to="/showcase/$slug"
+            params={{ slug: item.slug || item.id }}
+            className="mt-2 flex flex-1 flex-col"
+          >
+            <p className="line-clamp-3 text-sm leading-relaxed text-muted">
               {item.description}
             </p>
 
@@ -354,8 +370,8 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
               View details
               <ArrowUpRight className="size-3.5" aria-hidden />
             </span>
-          </div>
-        </Link>
+          </Link>
+        </div>
       </article>
     </li>
   );
