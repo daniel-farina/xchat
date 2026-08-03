@@ -28,7 +28,7 @@ const IMPORT_USER_ID = "hub-import-system";
 export const IMPORT_PLACEHOLDER_IMAGE =
   "data:image/svg+xml;base64," +
   Buffer.from(
-    `<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"800\" height=\"450\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0%\" stop-color=\"#0f172a\"/><stop offset=\"100%\" stop-color=\"#1e3a5f\"/></linearGradient></defs><rect width=\"800\" height=\"450\" fill=\"url(#g)\"/><text x=\"400\" y=\"220\" text-anchor=\"middle\" fill=\"#94a3b8\" font-family=\"system-ui,sans-serif\" font-size=\"26\">Grok Build App</text><text x=\"400\" y=\"255\" text-anchor=\"middle\" fill=\"#64748b\" font-family=\"system-ui,sans-serif\" font-size=\"14\">Imported catalog</text></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#1e3a5f"/></linearGradient></defs><rect width="800" height="450" fill="url(#g)"/><text x="400" y="220" text-anchor="middle" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="26">Grok Build App</text><text x="400" y="255" text-anchor="middle" fill="#64748b" font-family="system-ui,sans-serif" font-size="14">Imported catalog</text></svg>`,
   ).toString("base64");
 
 type CompactPost = {
@@ -144,7 +144,7 @@ function newId(): string {
 
 async function requireAdmin(userId: string): Promise<void> {
   const sql = await getSql();
-  const rows = await sql<{ x_handle: string }> `
+  const rows = await sql<{ x_handle: string }>`
     select x_handle from profiles where user_id = ${userId} limit 1
   `;
   if (!isAdminHandle(rows[0]?.x_handle ?? null)) {
@@ -184,7 +184,7 @@ export const importHubCatalog = createServerFn({ method: "POST" })
           continue;
         }
 
-        const existing = await sql<{ id: string }> `
+        const existing = await sql<{ id: string }>`
           select id from showcase_items
           where lower(source_hostname) = ${hostname}
           limit 1
@@ -217,7 +217,7 @@ export const importHubCatalog = createServerFn({ method: "POST" })
             skipped += 1;
             continue;
           }
-          await sql `
+          await sql`
             update showcase_items set
               app_name = ${appName},
               category = ${category},
@@ -248,7 +248,7 @@ export const importHubCatalog = createServerFn({ method: "POST" })
         }
 
         const slug = await uniqueSlug(appName, async (candidate) => {
-          const rows = await sql<{ id: string }> `
+          const rows = await sql<{ id: string }>`
             select id from showcase_items
             where lower(slug) = ${candidate.toLowerCase()}
             limit 1
@@ -257,7 +257,7 @@ export const importHubCatalog = createServerFn({ method: "POST" })
         });
 
         const id = newId();
-        await sql `
+        await sql`
           insert into showcase_items (
             id, user_id, slug, app_name, category, author_name, author_handle,
             description, tools, prompt, model, prompt_style,
@@ -317,7 +317,7 @@ export const getHubImportStatus = createServerFn({ method: "GET" })
     await requireAdmin(context.userId);
     const sql = await getSql();
     const items = loadSeed();
-    const rows = await sql<{ cnt: number }> `
+    const rows = await sql<{ cnt: number }>`
       select count(*)::int as cnt from showcase_items
       where source_hostname is not null
     `;
