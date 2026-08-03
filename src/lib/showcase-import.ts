@@ -4,7 +4,11 @@ import { getSql } from "@/lib/db";
 import { isAdminHandle } from "@/lib/admins";
 import { isShowcaseCategory } from "@/lib/showcase-options";
 import { uniqueSlug } from "@/lib/slug";
-import seed from "@/data/showcase_seed.json";
+import seedPart1 from "@/data/showcase_seed_part1.json";
+import seedPart2 from "@/data/showcase_seed_part2.json";
+import seedPart3 from "@/data/showcase_seed_part3.json";
+import seedPart4 from "@/data/showcase_seed_part4.json";
+import seedPart5 from "@/data/showcase_seed_part5.json";
 
 const IMPORT_USER_ID = "hub-import-system";
 
@@ -51,6 +55,16 @@ type SeedItem = {
   sources?: string[];
 };
 
+function loadSeed(): SeedItem[] {
+  return [
+    ...(seedPart1 as SeedItem[]),
+    ...(seedPart2 as SeedItem[]),
+    ...(seedPart3 as SeedItem[]),
+    ...(seedPart4 as SeedItem[]),
+    ...(seedPart5 as SeedItem[]),
+  ];
+}
+
 function newId(): string {
   return crypto.randomUUID();
 }
@@ -86,7 +100,7 @@ export const importHubCatalog = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await requireAdmin(context.userId);
     const sql = await getSql();
-    const items = seed as SeedItem[];
+    const items = loadSeed();
 
     let inserted = 0;
     let updated = 0;
@@ -255,7 +269,7 @@ export const getHubImportStatus = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
     const sql = await getSql();
-    const items = seed as SeedItem[];
+    const items = loadSeed();
     const hostnames = items
       .map((i) => String(i.hostname ?? "").trim().toLowerCase())
       .filter(Boolean);
