@@ -6,22 +6,6 @@ import { isShowcaseCategory } from "@/lib/showcase-options";
 import { uniqueSlug } from "@/lib/slug";
 import seed00 from "@/data/seed_chunks/seed_00.json";
 import seed01 from "@/data/seed_chunks/seed_01.json";
-import seed02 from "@/data/seed_chunks/seed_02.json";
-import seed03 from "@/data/seed_chunks/seed_03.json";
-import seed04 from "@/data/seed_chunks/seed_04.json";
-import seed05 from "@/data/seed_chunks/seed_05.json";
-import seed06 from "@/data/seed_chunks/seed_06.json";
-import seed07 from "@/data/seed_chunks/seed_07.json";
-import seed08 from "@/data/seed_chunks/seed_08.json";
-import seed09 from "@/data/seed_chunks/seed_09.json";
-import seed10 from "@/data/seed_chunks/seed_10.json";
-import seed11 from "@/data/seed_chunks/seed_11.json";
-import seed12 from "@/data/seed_chunks/seed_12.json";
-import seed13 from "@/data/seed_chunks/seed_13.json";
-import seed14 from "@/data/seed_chunks/seed_14.json";
-import seed15 from "@/data/seed_chunks/seed_15.json";
-import seed16 from "@/data/seed_chunks/seed_16.json";
-import seed17 from "@/data/seed_chunks/seed_17.json";
 
 const IMPORT_USER_ID = "hub-import-system";
 
@@ -118,22 +102,6 @@ function loadSeed(): SeedItem[] {
   const raw = [
     ...(seed00 as CompactSeed[]),
     ...(seed01 as CompactSeed[]),
-    ...(seed02 as CompactSeed[]),
-    ...(seed03 as CompactSeed[]),
-    ...(seed04 as CompactSeed[]),
-    ...(seed05 as CompactSeed[]),
-    ...(seed06 as CompactSeed[]),
-    ...(seed07 as CompactSeed[]),
-    ...(seed08 as CompactSeed[]),
-    ...(seed09 as CompactSeed[]),
-    ...(seed10 as CompactSeed[]),
-    ...(seed11 as CompactSeed[]),
-    ...(seed12 as CompactSeed[]),
-    ...(seed13 as CompactSeed[]),
-    ...(seed14 as CompactSeed[]),
-    ...(seed15 as CompactSeed[]),
-    ...(seed16 as CompactSeed[]),
-    ...(seed17 as CompactSeed[]),
   ];
   return raw.map(expand);
 }
