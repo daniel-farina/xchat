@@ -7,27 +7,43 @@ import { uniqueSlug } from "@/lib/slug";
 import seedPart1 from "@/data/showcase_seed_part1.json";
 import seedPart2 from "@/data/showcase_seed_part2.json";
 import seedPart3 from "@/data/showcase_seed_part3.json";
-import seedPart4 from "@/data/showcase_seed_part4.json";
-import seedPart5 from "@/data/showcase_seed_part5.json";
 
 const IMPORT_USER_ID = "hub-import-system";
 
-/** Minimal SVG placeholder used when no app screenshot is available. */
 export const IMPORT_PLACEHOLDER_IMAGE =
   "data:image/svg+xml;base64," +
   Buffer.from(
     `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#1e3a5f"/></linearGradient></defs><rect width="800" height="450" fill="url(#g)"/><text x="400" y="220" text-anchor="middle" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="26">Grok Build App</text><text x="400" y="255" text-anchor="middle" fill="#64748b" font-family="system-ui,sans-serif" font-size="14">Imported catalog</text></svg>`,
   ).toString("base64");
 
-type SeedPost = {
-  post_id?: string | null;
-  post_url?: string | null;
-  author_username?: string | null;
-  likes?: number | null;
-  reposts?: number | null;
-  views?: number | null;
-  posted_at?: string | null;
-  content?: string | null;
+type CompactPost = {
+  i?: string | null;
+  u?: string | null;
+  a?: string | null;
+  l?: number | null;
+  r?: number | null;
+  v?: number | null;
+  t?: string | null;
+};
+
+type CompactSeed = {
+  s: string;
+  n: string;
+  c: string;
+  an: string;
+  ah: string;
+  d: string;
+  t: string;
+  u: string;
+  h: string;
+  hv?: number | null;
+  hl?: number | null;
+  hr?: number | null;
+  xl?: number | null;
+  pt?: number | null;
+  pm?: number | null;
+  p?: CompactPost[];
+  src?: string[];
 };
 
 type SeedItem = {
@@ -43,26 +59,65 @@ type SeedItem = {
   prompt_style: string;
   creation_url: string;
   hostname: string;
-  status?: string;
   hub_rating?: number | null;
   hub_views?: number | null;
   hub_likes?: number | null;
   x_top_likes?: number | null;
   post_likes_total?: number | null;
   post_likes_max?: number | null;
-  posts?: SeedPost[];
-  hero_image_url?: string | null;
-  sources?: string[];
+  posts: {
+    post_id?: string | null;
+    post_url?: string | null;
+    author_username?: string | null;
+    likes?: number | null;
+    reposts?: number | null;
+    views?: number | null;
+    posted_at?: string | null;
+  }[];
+  sources: string[];
 };
 
+function expand(c: CompactSeed): SeedItem {
+  return {
+    slug: c.s,
+    app_name: c.n,
+    category: c.c,
+    author_name: c.an,
+    author_handle: c.ah,
+    description: c.d,
+    tools: c.t || "Grok Build web",
+    prompt:
+      "Imported from Grok Build Hub / explore.grok.me / X — original prompt not available.",
+    model: "Grok Build",
+    prompt_style: "multi_day",
+    creation_url: c.u,
+    hostname: c.h,
+    hub_rating: c.hr ?? null,
+    hub_views: c.hv ?? null,
+    hub_likes: c.hl ?? null,
+    x_top_likes: c.xl ?? c.pm ?? null,
+    post_likes_total: c.pt ?? null,
+    post_likes_max: c.pm ?? null,
+    posts: (c.p || []).map((p) => ({
+      post_id: p.i,
+      post_url: p.u,
+      author_username: p.a,
+      likes: p.l,
+      reposts: p.r,
+      views: p.v,
+      posted_at: p.t,
+    })),
+    sources: c.src || [],
+  };
+}
+
 function loadSeed(): SeedItem[] {
-  return [
-    ...(seedPart1 as SeedItem[]),
-    ...(seedPart2 as SeedItem[]),
-    ...(seedPart3 as SeedItem[]),
-    ...(seedPart4 as SeedItem[]),
-    ...(seedPart5 as SeedItem[]),
+  const raw = [
+    ...(seedPart1 as CompactSeed[]),
+    ...(seedPart2 as CompactSeed[]),
+    ...(seedPart3 as CompactSeed[]),
   ];
+  return raw.map(expand);
 }
 
 function newId(): string {
@@ -88,10 +143,6 @@ function sanitizeHandle(raw: string): string {
   return h || "grokbuild";
 }
 
-/**
- * Admin-only: upsert the merged Hub / Explore / X catalog into showcase_items.
- * Idempotent on source_hostname. Existing user-submitted rows (no hostname) are untouched.
- */
 export const importHubCatalog = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((input: { mode?: "insert_only" | "upsert" } = {}) => ({
@@ -109,9 +160,7 @@ export const importHubCatalog = createServerFn({ method: "POST" })
 
     for (const item of items) {
       try {
-        const hostname = String(item.hostname ?? "")
-          .trim()
-          .toLowerCase();
+        const hostname = String(item.hostname ?? "").trim().toLowerCase();
         if (!hostname) {
           skipped += 1;
           continue;
@@ -123,25 +172,15 @@ export const importHubCatalog = createServerFn({ method: "POST" })
           limit 1
         `;
 
-        const category = isShowcaseCategory(item.category)
-          ? item.category
-          : "other";
+        const category = isShowcaseCategory(item.category) ? item.category : "other";
         const authorHandle = sanitizeHandle(item.author_handle);
-        const authorName = (item.author_name || authorHandle || "Grok Builder").slice(
-          0,
-          80,
-        );
+        const authorName = (item.author_name || authorHandle || "Grok Builder").slice(0, 80);
         const appName = (item.app_name || hostname).trim().slice(0, 80);
         let description = (item.description || `${appName} built with Grok Build.`).trim();
-        if (description.length < 8) {
-          description = `${appName} — ${item.creation_url}`;
-        }
+        if (description.length < 8) description = `${appName} — ${item.creation_url}`;
         description = description.slice(0, 1200);
         const tools = (item.tools || "Grok Build web").slice(0, 400);
-        const prompt = (
-          item.prompt ||
-          "Imported from Grok Build Hub / explore.grok.me / X — original prompt not available."
-        ).slice(0, 4000);
+        const prompt = item.prompt.slice(0, 4000);
         const model = (item.model || "Grok Build").slice(0, 80);
         const promptStyle = item.prompt_style || "multi_day";
         const creationUrl = item.creation_url.startsWith("http")
@@ -254,16 +293,9 @@ export const importHubCatalog = createServerFn({ method: "POST" })
       }
     }
 
-    return {
-      totalSeed: items.length,
-      inserted,
-      updated,
-      skipped,
-      errors,
-    };
+    return { totalSeed: items.length, inserted, updated, skipped, errors };
   });
 
-/** Count how many seed hostnames are already in the DB. */
 export const getHubImportStatus = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
@@ -273,15 +305,12 @@ export const getHubImportStatus = createServerFn({ method: "GET" })
     const hostnames = items
       .map((i) => String(i.hostname ?? "").trim().toLowerCase())
       .filter(Boolean);
-
     const rows = await sql<{ cnt: number }>`
       select count(*)::int as cnt from showcase_items
       where source_hostname is not null
     `;
-    const imported = Number(rows[0]?.cnt ?? 0);
-
     return {
       seedCount: hostnames.length,
-      alreadyImported: imported,
+      alreadyImported: Number(rows[0]?.cnt ?? 0),
     };
   });
